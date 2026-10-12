@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
@@ -7,9 +7,9 @@ use App\Http\Controllers\Auth\EmailVerificationController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\ApprovalController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Requests\CheckEmailRequest;
 use App\Models\Branch;
 use App\Models\Tenant;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // ------------------------------------------------------------------
@@ -42,7 +42,7 @@ Route::middleware('auth')->group(function () {
 Route::livewire('/', 'pages::public.landing')->name('public.landing');
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [LoginController::class, 'login']);
+Route::post('/login', [LoginController::class, 'login'])->middleware('throttle:login');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
 // Registration — Owner / Tenant
@@ -58,16 +58,16 @@ Route::post('/register/customer/send-code', [RegisterController::class, 'sendCod
 Route::post('/register/customer', [RegisterController::class, 'registerCustomer'])->name('register.customer');
 
 // Real-time email uniqueness check
-Route::post('/register/check-email', function (Request $request) {
-    $request->validate(['email' => 'required|email']);
+Route::post('/register/check-email', function (CheckEmailRequest $request) {
+    $email = $request->validated('email');
 
-    $takenInTenants = Tenant::where('email', $request->email)->exists();
-    $takenInUsers   = \App\Models\User::where('email', $request->email)->exists();
+    $takenInTenants = Tenant::where('email', $email)->exists();
+    $takenInUsers   = \App\Models\User::where('email', $email)->exists();
 
     return response()->json([
         'available' => ! ($takenInTenants || $takenInUsers),
     ]);
-})->name('register.check-email');
+})->middleware('throttle:email-availability')->name('register.check-email');
 
 // Combined pending page
 Route::get('/pending/{type}', function ($type) {

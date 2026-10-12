@@ -4,9 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Order;
 use App\Services\PayMongoCheckoutService;
-use App\Support\StockService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
@@ -86,38 +84,19 @@ class PaymentController extends Controller
     }
 
     /**
-     * ✅ Handle cancelled payment
+     * A browser return is not authoritative evidence of cancellation.
      */
     public function cancel(Order $order)
     {
         abort_unless((int) $order->user_id === (int) Auth::id(), 403, 'Unauthorized.');
 
-        DB::transaction(function () use ($order) {
-            $lockedOrder = Order::withoutGlobalScopes()
-                ->whereKey($order->id)
-                ->where('tenant_id', $order->tenant_id)
-                ->where('user_id', Auth::id())
-                ->lockForUpdate()
-                ->firstOrFail();
-
-            if ($lockedOrder->status !== 'pending' || $lockedOrder->payment_status !== 'pending') {
-                return;
-            }
-
-            $lockedOrder->loadMissing('items.product');
-            $lockedOrder->update([
-                'status' => 'cancelled',
-                'notes' => ($lockedOrder->notes ? $lockedOrder->notes . "\n" : '') . 'Payment cancelled at ' . now()->format('M d, Y h:i A'),
-            ]);
-            StockService::restoreOrder($lockedOrder, Auth::id());
-        });
-
-        $order->refresh();
-        if ($order->payment_status === 'paid') {
+        if ($order->payment_status === 'paid' && $order->status !== 'cancelled') {
             return redirect()->route('payment.success', $order);
         }
 
-        return view('pages.payments.⚡cancel', compact('order'));
+        return redirect()->route('customer.orders')->with(
+            'info',
+            'Checkout closed. Check your order\'s current payment status below.'
+        );
     }
-
 }

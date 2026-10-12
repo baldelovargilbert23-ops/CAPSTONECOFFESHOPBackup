@@ -11,7 +11,10 @@ use App\Observers\OrderObserver;
 use App\Observers\TenantObserver;
 use App\Observers\UserObserver;
 use App\Policies\StaffPolicy;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,6 +32,20 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        RateLimiter::for('login', function (Request $request): array {
+            $email = $request->input('email');
+            $identity = is_string($email) ? mb_strtolower(trim($email)) : '';
+
+            return [
+                Limit::perMinute(30)->by('login-ip:'.$request->ip()),
+                Limit::perMinute(5)->by('login-email:'.hash('sha256', $identity)),
+            ];
+        });
+
+        RateLimiter::for('email-availability', fn (Request $request) =>
+            Limit::perMinute(20)->by('email-availability:'.$request->ip())
+        );
+
         // Observers
         Tenant::observe(TenantObserver::class);
         Branch::observe(BranchObserver::class);
