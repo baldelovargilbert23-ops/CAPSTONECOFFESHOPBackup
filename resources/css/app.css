@@ -1,0 +1,168 @@
+@import 'tailwindcss';
+
+/* Fonts: self-hosted, latin only, woff2 */
+@import '@fontsource/instrument-sans/latin-400.css';
+@import '@fontsource/instrument-sans/latin-500.css';
+@import '@fontsource/instrument-sans/latin-600.css';
+@import '@fontsource/instrument-sans/latin-700.css';
+
+/* Font Awesome: only the styles you use (check with the grep in Step 9) */
+@import '@fortawesome/fontawesome-free/css/fontawesome.min.css';
+@import '@fortawesome/fontawesome-free/css/solid.min.css';
+/* @import '@fortawesome/fontawesome-free/css/regular.min.css'; */
+/* @import '@fortawesome/fontawesome-free/css/brands.min.css'; */
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../**/*.blade.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+@layer base {
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+    }
+
+    html {
+        text-size-adjust: 100%;
+        -webkit-text-size-adjust: 100%;
+    }
+
+    button:not(:disabled),
+    [role="button"]:not(:disabled) {
+        cursor: pointer;
+    }
+
+    body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        -webkit-font-smoothing: antialiased;
+        min-width: 320px;
+    }
+
+    img,
+    video,
+    canvas {
+        max-width: 100%;
+        height: auto;
+    }
+
+    input,
+    select,
+    textarea,
+    button {
+        font: inherit;
+    }
+}
+
+@custom-variant hover (&:hover);
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ===== Coffee Shop Theme Variables ===== */
+:root {
+    --bg-primary: #f5f0e8;
+    --bg-secondary: #faf6ef;
+    --bg-elevated: #ffffff;
+    --bg-inner: #f5f0e8;
+    --text-primary: #1a3a3a;
+    --text-muted: #6b7f7a;
+    --accent: #c8965f;
+    --accent-warm: #d4a574;
+    --accent-bright: #b8874a;
+    --forest: #1a3a3a;
+    --border-soft: rgba(26, 58, 58, 0.10);
+    --ok: #16a34a;
+    --warn: #d97706;
+    --bad: #dc2626;
+    --info: #2563eb;
+    --violet: #7c3aed;
+}
+
+.dark {
+    --bg-primary: #0a1f1a;
+    --bg-secondary: #0f2922;
+    --bg-elevated: #14332c;
+    --bg-inner: #0a1f1a;
+    --text-primary: #f0ebe0;
+    --text-muted: #8a9a94;
+    --accent: #d4a574;
+    --accent-warm: #e0b585;
+    --accent-bright: #c8965f;
+    --forest: #f0ebe0;
+    --border-soft: rgba(212, 165, 116, 0.12);
+    --ok: #4ade80;
+    --warn: #fbbf24;
+    --bad: #f87171;
+    --info: #60a5fa;
+    --violet: #a78bfa;
+}
+
+/* ===== Shared (previously copy-pasted in every layout) ===== */
+[x-cloak] { display: none !important; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: var(--accent-bright); }
+
+@media (min-width: 1024px) {
+    .owner-main-wrapper { padding-left: 18rem !important; }
+}
+
+.line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Keep page gutters and card spacing comfortable on tablets and phones. */
+@media (max-width: 768px) {
+    main .p-6 { padding: 1.125rem !important; }
+    main .p-5 { padding: 1rem !important; }
+    main .px-6 { padding-inline: 1.125rem !important; }
+    main .px-5 { padding-inline: 1rem !important; }
+    main .gap-6 { gap: 1rem !important; }
+    main .gap-5 { gap: 0.875rem !important; }
+    main .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem !important; }
+    main .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 1.25rem !important; }
+}
+
+@media (max-width: 480px) {
+    main .p-6 { padding: 1rem !important; }
+    main .px-6 { padding-inline: 1rem !important; }
+    main .gap-6 { gap: 0.875rem !important; }
+    main .space-y-8 > :not([hidden]) ~ :not([hidden]) { margin-top: 1rem !important; }
+}
+
+/* Cashier and barista controls share a predictable, touch-friendly size. */
+.staff-workspace main,
+.staff-workspace main > * {
+    min-width: 0;
+}
+
+.staff-workspace button:not(.staff-compact-control),
+.staff-workspace input[type="submit"] {
+    min-height: 2.75rem;
+    line-height: 1.25;
+}
+
+.staff-workspace button[aria-label],
+.staff-workspace button.staff-compact-control {
+    min-width: 2.5rem;
+    min-height: 2.5rem;
+}
+
+.staff-workspace button[class*="w-5"][class*="h-5"] {
+    min-width: 2.25rem;
+    min-height: 2.25rem;
+}
+
+.staff-workspace .overflow-x-auto {
+    overscroll-behavior-inline: contain;
+    -webkit-overflow-scrolling: touch;
+}

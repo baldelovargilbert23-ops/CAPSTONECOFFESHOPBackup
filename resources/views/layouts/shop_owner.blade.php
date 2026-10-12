@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="min-h-full overflow-x-hidden">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>{{ $title ?? config('app.name') }}</title>
+
+    @include('layouts.partials.theme-init')
+
+    @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
+        @vite(['resources/css/app.css'])
+    @endif
+
+    @livewireStyles
+    @include('layouts.partials.global-theme')
+</head>
+
+<body class="font-sans antialiased transition-colors duration-300">
+
+    <div x-data="{ sidebarOpen: false }" class="min-h-dvh overflow-x-hidden">
+
+        <div x-show="sidebarOpen"
+             x-cloak
+             @click="sidebarOpen = false"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             class="fixed inset-0 z-40 backdrop-blur-sm lg:hidden"
+             style="background-color: rgba(0,0,0,0.6);"></div>
+
+        @include('layouts.shop_owner.sidebar')
+
+        <div class="owner-main-wrapper min-w-0 lg:pl-72 flex flex-col min-h-dvh">
+            @include('layouts.shop_owner.header')
+
+            <main class="min-w-0 flex-1">
+                {{ $slot }}
+            </main>
+        </div>
+    </div>
+
+    {{-- Livewire loads its own JS + Alpine here --}}
+    @livewireScripts
+
+    {{-- Only the small app.js loads on every page --}}
+    @vite(['resources/js/app.js'])
+
+    {{-- charts.js (~715 kB) loads only on pages that @push('chart-scripts') --}}
+    @stack('chart-scripts')
+
+    @stack('scripts')
+</body>
+</html>
